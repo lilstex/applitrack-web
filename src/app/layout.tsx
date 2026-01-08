@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
-const inter = Inter({ subsets: ["latin"] });
+// const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "AppliTrack | Smarter resumes. Organized applications.",
@@ -18,7 +17,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-slate-50 text-slate-900`}>
+      <body
+        className="antialiased font-sans bg-slate-50 text-slate-900"
+        suppressHydrationWarning
+      >
         {children}
         <Toaster position="top-center" richColors />
       </body>

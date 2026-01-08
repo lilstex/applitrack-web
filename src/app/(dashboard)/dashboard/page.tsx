@@ -36,6 +36,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Application } from "@/types";
 
 export default function DashboardPage() {
   const [applications, setApplications] = useState([]);
@@ -134,7 +135,7 @@ export default function DashboardPage() {
                   </TableCell>
                 </TableRow>
               ) : (
-                applications.map((app: any, index: number) => (
+                applications.map((app: Application, index: number) => (
                   <TableRow
                     key={app._id}
                     className="group hover:bg-slate-50/50 transition-colors"

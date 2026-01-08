@@ -1,18 +1,29 @@
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/request";
+import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
+  const isAuthPage =
+    request.nextUrl.pathname.startsWith("/login") ||
+    request.nextUrl.pathname.startsWith("/signup");
 
-  // If trying to access dashboard and no token exists
-  if (request.nextUrl.pathname.startsWith("/dashboard") && !token) {
+  if (!token && !isAuthPage && request.nextUrl.pathname !== "/") {
     return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  if (token && isAuthPage) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   return NextResponse.next();
 }
 
-// Only run this middleware on dashboard and profile routes
 export const config = {
-  matcher: ["/dashboard/:path*", "/profile/:path*", "/generate/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/profile/:path*",
+    "/generate/:path*",
+    "/login",
+    "/signup",
+  ],
 };

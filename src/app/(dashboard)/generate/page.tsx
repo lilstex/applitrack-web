@@ -10,36 +10,43 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles, FileDown, Loader2, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
+import { Application } from "@/types";
+
+interface GenerateFormInputs {
+  title: string;
+  company: string;
+  description: string;
+}
 
 export default function GeneratorPage() {
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
-  const { register, handleSubmit } = useForm();
+  const [result, setResult] = useState<Application | null>(null);
 
-  const onGenerate = async (data: any) => {
+  const { register, handleSubmit } = useForm<GenerateFormInputs>();
+
+  const onGenerate = async (data: GenerateFormInputs) => {
     setLoading(true);
     setResult(null);
     try {
       const response = await apiClient.post("/application/generate", data);
 
-      // Handle the "Duplicate" logic from your backend ApplicationService
       if (response.data.isDuplicate) {
         toast.info("Existing CV Found", {
           description:
             "You've already optimized for this job. Loading previous version.",
         });
-        setResult(response.data.data); // Use the existing data
+        setResult(response.data.data as Application);
       } else {
         toast.success("Resume Optimized!", {
           description: "AI has successfully tailored your CV to this JD.",
         });
-        setResult(response.data);
+        setResult(response.data as Application);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMsg =
+        error instanceof Error ? error.message : "Check your OpenAI credits.";
       toast.error("Generation Failed", {
-        description:
-          error.response?.data?.message ||
-          "Check your OpenAI credits on the VPS.",
+        description: errorMsg,
       });
     } finally {
       setLoading(false);
@@ -47,15 +54,13 @@ export default function GeneratorPage() {
   };
 
   const downloadPdf = (appId: string) => {
-    // Standardize to Cookies for production auth
-    const token = Cookies.get("token"); // [!code ++]
+    const token = Cookies.get("token");
 
     if (!token) {
       toast.error("Session Expired", { description: "Please log in again." });
       return;
     }
 
-    // Trigger binary stream download from NestJS
     window.open(
       `${process.env.NEXT_PUBLIC_API_URL}/application/download/${appId}?token=${token}`,
       "_blank"
@@ -64,7 +69,6 @@ export default function GeneratorPage() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[calc(100vh-120px)]">
-      {/* Left: Input Form */}
       <div className="space-y-6 overflow-y-auto pr-2">
         <h1 className="text-3xl font-bold text-slate-900">CV Generator</h1>
         <form onSubmit={handleSubmit(onGenerate)} className="space-y-4">
@@ -115,7 +119,6 @@ export default function GeneratorPage() {
         </form>
       </div>
 
-      {/* Right: Results / Preview */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-y-auto p-8 relative">
         {!result && !loading && (
           <div className="flex flex-col items-center justify-center h-full text-slate-400">
@@ -141,7 +144,7 @@ export default function GeneratorPage() {
               </div>
               <Button
                 onClick={() => downloadPdf(result._id)}
-                className="bg-emerald-600 hover:bg-emerald-700 shadow-md"
+                className="bg-emerald-600 hover:bg-emerald-700 shadow-md text-white"
               >
                 <FileDown size={18} className="mr-2" /> Download PDF
               </Button>
@@ -152,7 +155,7 @@ export default function GeneratorPage() {
                 AI-Optimized Summary
               </h3>
               <div className="p-4 bg-slate-50 rounded-lg border border-slate-100 text-slate-700 whitespace-pre-wrap leading-relaxed">
-                {result.generatedCvData?.summary}
+                {result.generatedCvData?.professionalSummary}
               </div>
 
               <h3 className="text-lg font-bold mt-8 text-slate-900">
@@ -160,7 +163,7 @@ export default function GeneratorPage() {
               </h3>
               <p className="text-slate-600 italic border-l-4 border-emerald-200 pl-4 py-2">
                 &quot;The AI has crafted a cover letter focusing on your{" "}
-                {result.generatedCvData?.topSkills?.join(", ") ||
+                {result.generatedCvData?.relevantSkills?.join(", ") ||
                   "core strengths"}
                 ...&quot;
               </p>

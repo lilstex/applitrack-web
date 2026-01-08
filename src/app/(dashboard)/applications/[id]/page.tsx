@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useEffect, useState, use } from "react";
@@ -12,12 +11,12 @@ import {
   Printer,
   ArrowLeft,
   Layout,
-  CheckCircle,
   FileText,
   Type,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { Application } from "@/types";
 
 export default function ViewApplicationPage({
   params,
@@ -25,17 +24,16 @@ export default function ViewApplicationPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const [app, setApp] = useState<any>(null);
+  const [app, setApp] = useState<Application | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [template, setTemplate] = useState("modern");
 
-  // Fetch application data
   useEffect(() => {
     const fetchApp = async () => {
       try {
         const res = await apiClient.get(`/application/${id}`);
         setApp(res.data);
-      } catch (error) {
+      } catch {
         toast.error("Failed to load application data");
       }
     };
@@ -43,11 +41,12 @@ export default function ViewApplicationPage({
   }, [id]);
 
   const handleSave = async () => {
+    if (!app) return;
     try {
       await apiClient.patch(`/application/${id}`, app);
       setIsEditing(false);
       toast.success("Changes saved successfully");
-    } catch (error) {
+    } catch {
       toast.error("Failed to save changes");
     }
   };
@@ -63,7 +62,7 @@ export default function ViewApplicationPage({
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-20">
-      {/* Top Action Bar - Sticky */}
+      {/* Top Action Bar */}
       <div className="flex justify-between items-center print:hidden bg-white p-4 rounded-xl border shadow-sm sticky top-0 z-20">
         <Link
           href="/dashboard"
@@ -81,7 +80,7 @@ export default function ViewApplicationPage({
                 : "text-slate-600"
             }
           >
-            <Edit3 size={16} className="mr-2" />{" "}
+            <Edit3 size={16} className="mr-2" />
             {isEditing ? "Exit Editor" : "Edit Content"}
           </Button>
           {isEditing ? (
@@ -99,9 +98,8 @@ export default function ViewApplicationPage({
         </div>
       </div>
 
-      {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Left Sidebar: Template Selection (Hidden in Edit Mode) */}
+        {/* Left Sidebar */}
         <div
           className={`lg:col-span-1 space-y-6 print:hidden ${
             isEditing ? "opacity-50 pointer-events-none" : ""
@@ -150,7 +148,7 @@ export default function ViewApplicationPage({
           </div>
         </div>
 
-        {/* Right Side: Document Preview & Tabs */}
+        {/* Right Side */}
         <div className="lg:col-span-3">
           <Tabs defaultValue="resume" className="w-full">
             <div className="flex justify-between items-center print:hidden mb-6 bg-slate-100 p-1 rounded-lg w-fit">
@@ -164,7 +162,6 @@ export default function ViewApplicationPage({
               </TabsList>
             </div>
 
-            {/* RESUME CONTENT */}
             <TabsContent value="resume" className="mt-0 focus-visible:ring-0">
               <div
                 className={`bg-white shadow-2xl mx-auto min-h-[1123px] transition-all duration-300 print:shadow-none print:m-0 ${
@@ -181,7 +178,6 @@ export default function ViewApplicationPage({
               </div>
             </TabsContent>
 
-            {/* COVER LETTER CONTENT */}
             <TabsContent
               value="cover-letter"
               className="mt-0 focus-visible:ring-0"
@@ -214,9 +210,12 @@ export default function ViewApplicationPage({
   );
 }
 
-// --- SUB-COMPONENTS FOR CLEANER CODE ---
+interface SubComponentProps {
+  app: Application;
+  setApp: React.Dispatch<React.SetStateAction<Application | null>>;
+}
 
-function ResumeEditor({ app, setApp }: any) {
+function ResumeEditor({ app, setApp }: SubComponentProps) {
   return (
     <div className="space-y-10 animate-in fade-in duration-500">
       <section className="space-y-4">
@@ -241,7 +240,7 @@ function ResumeEditor({ app, setApp }: any) {
       <section className="bg-slate-50 p-6 rounded-xl border border-dashed border-slate-300">
         <p className="text-slate-500 text-sm text-center">
           Experience highlights and skills are pulled from your{" "}
-          <strong>Master Profile</strong>. Edit them there to update all future
+          <strong>Profile</strong>. Edit them there to update all future
           applications.
         </p>
       </section>
@@ -249,15 +248,19 @@ function ResumeEditor({ app, setApp }: any) {
   );
 }
 
-function ResumeTemplate({ data, template }: { data: any; template: string }) {
+function ResumeTemplate({
+  data,
+  template,
+}: {
+  data: Application;
+  template: string;
+}) {
   const { professionalSummary, refinedExperience, relevantSkills } =
     data.generatedCvData;
-
   const isModern = template === "modern";
 
   return (
     <div className={isModern ? "font-sans" : "font-serif"}>
-      {/* Header */}
       <header
         className={`mb-10 ${
           isModern
@@ -284,7 +287,6 @@ function ResumeTemplate({ data, template }: { data: any; template: string }) {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-        {/* Main Body */}
         <div className="md:col-span-2 space-y-10">
           <section>
             <h2
@@ -307,7 +309,7 @@ function ResumeTemplate({ data, template }: { data: any; template: string }) {
             >
               Relevant Experience
             </h2>
-            {refinedExperience.map((exp: any, i: number) => (
+            {refinedExperience.map((exp, i) => (
               <div key={i} className="mb-8 last:mb-0">
                 <div className="flex justify-between items-baseline mb-2">
                   <h3 className="font-bold text-slate-900 text-lg">
@@ -318,7 +320,7 @@ function ResumeTemplate({ data, template }: { data: any; template: string }) {
                   </span>
                 </div>
                 <ul className="space-y-2">
-                  {exp.highlights.map((h: string, j: number) => (
+                  {exp.highlights.map((h, j) => (
                     <li
                       key={j}
                       className="text-[14px] text-slate-600 flex gap-2"
@@ -333,7 +335,6 @@ function ResumeTemplate({ data, template }: { data: any; template: string }) {
           </section>
         </div>
 
-        {/* Sidebar */}
         <div className="space-y-10">
           <section className={isModern ? "bg-slate-50 p-6 rounded-2xl" : ""}>
             <h2
@@ -344,7 +345,7 @@ function ResumeTemplate({ data, template }: { data: any; template: string }) {
               Core Expertise
             </h2>
             <div className="flex flex-wrap gap-2">
-              {relevantSkills.map((skill: string) => (
+              {relevantSkills.map((skill) => (
                 <span
                   key={skill}
                   className={`${

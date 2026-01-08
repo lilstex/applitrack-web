@@ -43,11 +43,9 @@ export default function LoginPage() {
       // 2. Clear cache and redirect
       router.refresh();
       window.location.href = "/dashboard";
-    } catch (error: any) {
+    } catch (error: unknown) {
       const errorMessage =
-        error.response?.data?.message ||
-        "Login failed. Check your credentials.";
-
+        error instanceof Error ? error.message : "An error occurred";
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);

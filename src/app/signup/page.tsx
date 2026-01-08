@@ -38,11 +38,9 @@ export default function SignupPage() {
 
       // 2. Redirect to Login
       router.push("/login");
-    } catch (error: any) {
+    } catch (error: unknown) {
       const errorMessage =
-        error.response?.data?.message ||
-        "Something went wrong. Please try again.";
-
+        error instanceof Error ? error.message : "An error occurred";
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);

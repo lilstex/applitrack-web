@@ -18,6 +18,7 @@ import {
   Briefcase,
 } from "lucide-react";
 import { toast } from "sonner";
+import { Experience } from "@/types";
 
 const profileSchema = z.object({
   fullName: z.string().min(2, "Name is too short"),
@@ -28,15 +29,15 @@ const profileSchema = z.object({
     .optional()
     .or(z.literal("")),
   summary: z.string().optional(),
-  skills: z.string().optional(), // We'll handle this as a comma-separated string for easier input
+  skills: z.string().optional(),
   workExperience: z.array(
     z.object({
       company: z.string().min(1, "Required"),
       role: z.string().min(1, "Required"),
       startDate: z.string().min(1, "Required"),
       endDate: z.string().min(1, "Required"),
-      highlights: z.string(), // Input as newline-separated
-      technologiesUsed: z.string(), // Input as comma-separated
+      highlights: z.string(),
+      technologiesUsed: z.string(),
     })
   ),
   education: z.array(
@@ -55,6 +56,8 @@ const profileSchema = z.object({
   ),
 });
 
+type ProfileFormValues = z.infer<typeof profileSchema>;
+
 export default function ProfilePage() {
   const [fetching, setFetching] = useState(true);
 
@@ -64,7 +67,7 @@ export default function ProfilePage() {
     handleSubmit,
     reset,
     formState: { isSubmitting },
-  } = useForm({
+  } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       workExperience: [],
@@ -73,7 +76,6 @@ export default function ProfilePage() {
     },
   });
 
-  // Dynamic Arrays for Experience, Education, and Certs
   const expArray = useFieldArray({ control, name: "workExperience" });
   const eduArray = useFieldArray({ control, name: "education" });
   const certArray = useFieldArray({ control, name: "certifications" });
@@ -82,18 +84,19 @@ export default function ProfilePage() {
     const loadProfile = async () => {
       try {
         const { data } = await apiClient.get("/profile");
-        // Pre-process arrays into strings for the form (Highlights & Skills)
-        const formattedData = {
+
+        const formattedData: Partial<ProfileFormValues> = {
           ...data,
-          skills: data.skills?.join(", "),
-          workExperience: data.workExperience?.map((exp: any) => ({
-            ...exp,
-            highlights: exp.highlights?.join("\n"),
-            technologiesUsed: exp.technologiesUsed?.join(", "),
-          })),
+          skills: data.skills?.join(", ") || "",
+          workExperience:
+            data.workExperience?.map((exp: Experience) => ({
+              ...exp,
+              highlights: exp.highlights?.join("\n") || "",
+              technologiesUsed: exp.technologiesUsed?.join(", ") || "",
+            })) || [],
         };
-        reset(formattedData);
-      } catch (error) {
+        reset(formattedData as ProfileFormValues);
+      } catch {
         toast.error("Failed to load profile data");
       } finally {
         setFetching(false);
@@ -102,23 +105,22 @@ export default function ProfilePage() {
     loadProfile();
   }, [reset]);
 
-  const onSubmit = async (data: any) => {
-    // Post-process strings back into arrays for the Backend DTO
+  const onSubmit = async (data: ProfileFormValues) => {
     const payload = {
       ...data,
       skills: data.skills
         ?.split(",")
-        .map((s: string) => s.trim())
+        .map((s) => s.trim())
         .filter(Boolean),
-      workExperience: data.workExperience.map((exp: any) => ({
+      workExperience: data.workExperience.map((exp) => ({
         ...exp,
         highlights: exp.highlights
           ?.split("\n")
-          .map((h: string) => h.trim())
+          .map((h) => h.trim())
           .filter(Boolean),
         technologiesUsed: exp.technologiesUsed
           ?.split(",")
-          .map((t: string) => t.trim())
+          .map((t) => t.trim())
           .filter(Boolean),
       })),
     };
@@ -126,7 +128,7 @@ export default function ProfilePage() {
     try {
       await apiClient.patch("/profile/basic", payload);
       toast.success("Profile updated successfully!");
-    } catch (error) {
+    } catch {
       toast.error("Failed to save changes.");
     }
   };
@@ -139,7 +141,7 @@ export default function ProfilePage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20">
       <div className="flex justify-between items-center bg-white p-4 rounded-lg border sticky top-0 z-10 shadow-sm">
-        <h1 className="text-2xl font-bold">Master Profile</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Master Profile</h1>
         <Button
           onClick={handleSubmit(onSubmit)}
           className="bg-emerald-600 hover:bg-emerald-700"
@@ -151,7 +153,6 @@ export default function ProfilePage() {
       </div>
 
       <form className="space-y-8">
-        {/* BASIC INFO */}
         <Card>
           <CardHeader>
             <CardTitle>Basic Information</CardTitle>
@@ -190,11 +191,10 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
-        {/* EXPERIENCE */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between border-b">
             <CardTitle className="flex items-center gap-2">
-              <Briefcase size={20} /> Experience
+              <Briefcase size={20} className="text-slate-600" /> Experience
             </CardTitle>
             <Button
               type="button"
@@ -211,7 +211,7 @@ export default function ProfilePage() {
                 })
               }
             >
-              <Plus size={16} /> Add Job
+              <Plus size={16} className="mr-2" /> Add Job
             </Button>
           </CardHeader>
           <CardContent className="divide-y">
@@ -257,11 +257,10 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
-        {/* EDUCATION */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between border-b">
             <CardTitle className="flex items-center gap-2">
-              <GraduationCap size={20} /> Education
+              <GraduationCap size={20} className="text-slate-600" /> Education
             </CardTitle>
             <Button
               type="button"
@@ -271,7 +270,7 @@ export default function ProfilePage() {
                 eduArray.append({ degree: "", school: "", year: "" })
               }
             >
-              <Plus size={16} /> Add Education
+              <Plus size={16} className="mr-2" /> Add Education
             </Button>
           </CardHeader>
           <CardContent className="divide-y">
@@ -303,11 +302,10 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
-        {/* CERTIFICATIONS */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between border-b">
             <CardTitle className="flex items-center gap-2">
-              <Award size={20} /> Certifications
+              <Award size={20} className="text-slate-600" /> Certifications
             </CardTitle>
             <Button
               type="button"
@@ -317,7 +315,7 @@ export default function ProfilePage() {
                 certArray.append({ title: "", issuer: "", date: "" })
               }
             >
-              <Plus size={16} /> Add Cert
+              <Plus size={16} className="mr-2" /> Add Cert
             </Button>
           </CardHeader>
           <CardContent className="divide-y">
