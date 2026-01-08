@@ -1,102 +1,183 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Sparkles,
+  ArrowRight,
+  CheckCircle,
+  LayoutDashboard,
+  Target,
+  FileText,
+  Download,
+  Zap,
+} from "lucide-react";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen bg-white">
+      {/* Navigation */}
+      <nav className="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
+        <div className="flex flex-col">
+          <div className="text-2xl font-bold text-slate-900 tracking-tight">
+            Appli<span className="text-emerald-600">Track</span>
+          </div>
+          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-slate-400 mt-0.5 leading-none">
+            Apply better
+          </span>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+        <div className="space-x-4">
+          <Link href="/login">
+            <Button variant="ghost">Login</Button>
+          </Link>
+          <Link href="/signup">
+            <Button className="bg-slate-900 text-white hover:bg-slate-800">
+              Get Started
+            </Button>
+          </Link>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="px-8 py-24 max-w-7xl mx-auto text-center space-y-8">
+        <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium border border-emerald-100">
+          <Sparkles size={16} />
+          <span>AI-Powered Job Application Toolkit</span>
+        </div>
+
+        <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight leading-tight">
+          Optimize. Apply. Track. <br />
+          <span className="text-emerald-600">Get Hired Faster.</span>
+        </h1>
+
+        <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+          AppliTrack helps you generate tailored resumes and cover letters for
+          every job and track all your applications in one place. Stop guessing,
+          stay organized, and apply smarter every day.
+        </p>
+
+        <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
+          <Link href="/signup">
+            <Button
+              size="lg"
+              className="bg-emerald-600 hover:bg-emerald-700 text-lg px-10 py-7 shadow-lg shadow-emerald-200"
+            >
+              Optimize My Resume <ArrowRight className="ml-2" />
+            </Button>
+          </Link>
+        </div>
+
+        {/* Hero Trust Badges */}
+        <div className="pt-16 flex flex-wrap justify-center gap-8 text-slate-400 border-t border-slate-100">
+          <div className="flex items-center gap-2 text-sm font-medium uppercase tracking-wider">
+            <CheckCircle size={16} className="text-emerald-500" /> ATS Optimized
+          </div>
+          <div className="flex items-center gap-2 text-sm font-medium uppercase tracking-wider">
+            <CheckCircle size={16} className="text-emerald-500" /> Recruiter
+            Approved
+          </div>
+        </div>
+      </section>
+
+      {/* Supporting Value Section */}
+      <section className="bg-slate-50 py-24 px-8 border-y border-slate-200">
+        <div className="max-w-7xl mx-auto space-y-16">
+          <div className="text-center space-y-4">
+            <h2 className="text-4xl font-bold text-slate-900">
+              Why AppliTrack?
+            </h2>
+            <p className="text-slate-600 text-lg">
+              Everything you need to apply faster — without losing quality.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Feature 1 */}
+            <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-emerald-100 w-12 h-12 rounded-lg flex items-center justify-center mb-6 text-emerald-700">
+                <FileText size={24} />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-slate-900">
+                Tailored Content
+              </h3>
+              <p className="text-slate-600">
+                Automatically customize your CV and cover letter to match each
+                job description using advanced AI.
+              </p>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center mb-6 text-blue-700">
+                <LayoutDashboard size={24} />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-slate-900">
+                Tracking Dashboard
+              </h3>
+              <p className="text-slate-600">
+                Track 10+ applications daily. Know where you applied, when, and
+                what stage you’re in at a glance.
+              </p>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-orange-100 w-12 h-12 rounded-lg flex items-center justify-center mb-6 text-orange-700">
+                <Target size={24} />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-slate-900">
+                ATS Optimization
+              </h3>
+              <p className="text-slate-600">
+                Improve your chances with AI-driven keyword matching and
+                ATS-friendly formatting.
+              </p>
+            </div>
+
+            {/* Feature 4 */}
+            <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-purple-100 w-12 h-12 rounded-lg flex items-center justify-center mb-6 text-purple-700">
+                <Zap size={24} />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-slate-900">
+                Fast Templates
+              </h3>
+              <p className="text-slate-600">
+                Clean, recruiter-approved resume and cover letter templates
+                designed for readability.
+              </p>
+            </div>
+
+            {/* Feature 5 */}
+            <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-slate-100 w-12 h-12 rounded-lg flex items-center justify-center mb-6 text-slate-700">
+                <Download size={24} />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-slate-900">
+                Instant PDF Export
+              </h3>
+              <p className="text-slate-600">
+                Download polished resumes and cover letters in seconds,
+                formatted exactly how hiring managers want them.
+              </p>
+            </div>
+
+            {/* Final "CTA" Card */}
+            <div className="bg-slate-900 p-8 rounded-2xl flex flex-col justify-center items-center text-center">
+              <h3 className="text-xl font-bold mb-4 text-white">
+                Ready to start?
+              </h3>
+              <Link href="/signup">
+                <Button className="bg-emerald-600 hover:bg-emerald-700 text-white w-full">
+                  Create Free Account
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-12 px-8 text-center text-slate-400 text-sm">
+        © {new Date().getFullYear()} AppliTrack. Built for career growth.
       </footer>
     </div>
   );
