@@ -16,6 +16,7 @@ import {
   GraduationCap,
   Award,
   Briefcase,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Experience } from "@/types";
@@ -135,71 +136,101 @@ export default function ProfilePage() {
 
   if (fetching)
     return (
-      <div className="p-10 text-center animate-pulse">Loading Profile...</div>
+      <div className="h-[60vh] flex flex-col items-center justify-center gap-4">
+        <Loader2 className="animate-spin text-emerald-600" size={32} />
+        <p className="text-slate-500 font-medium animate-pulse">
+          Loading Profile...
+        </p>
+      </div>
     );
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-20">
-      <div className="flex justify-between items-center bg-white p-4 rounded-lg border sticky top-0 z-10 shadow-sm">
-        <h1 className="text-2xl font-bold text-slate-900">Master Profile</h1>
+    <div className="max-w-4xl mx-auto space-y-6 md:space-y-8 pb-20 px-4 md:px-0">
+      {/* Sticky Header */}
+      <div className="flex justify-between items-center bg-white p-4 rounded-xl border sticky top-0 z-20 shadow-sm gap-2">
+        <h1 className="text-xl md:text-2xl font-bold text-slate-900 truncate">
+          Master Profile
+        </h1>
         <Button
           onClick={handleSubmit(onSubmit)}
-          className="bg-emerald-600 hover:bg-emerald-700"
+          className="bg-emerald-600 hover:bg-emerald-700 whitespace-nowrap"
           disabled={isSubmitting}
         >
-          <Save size={18} className="mr-2" />{" "}
-          {isSubmitting ? "Saving..." : "Save Changes"}
+          {isSubmitting ? (
+            <Loader2 size={18} className="mr-2 animate-spin" />
+          ) : (
+            <Save size={18} className="mr-2" />
+          )}
+          <span className="hidden sm:inline">
+            {isSubmitting ? "Saving..." : "Save Changes"}
+          </span>
+          <span className="sm:hidden">{isSubmitting ? "..." : "Save"}</span>
         </Button>
       </div>
 
-      <form className="space-y-8">
-        <Card>
+      <form className="space-y-6 md:space-y-8">
+        {/* Basic Info */}
+        <Card className="shadow-sm border-slate-200">
           <CardHeader>
             <CardTitle>Basic Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Full Name</label>
-                <Input {...register("fullName")} />
+                <label className="text-sm font-medium text-slate-700">
+                  Full Name
+                </label>
+                <Input {...register("fullName")} placeholder="John Doe" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Phone</label>
-                <Input {...register("phoneNumber")} />
+                <label className="text-sm font-medium text-slate-700">
+                  Phone
+                </label>
+                <Input {...register("phoneNumber")} placeholder="+234..." />
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">LinkedIn URL</label>
+              <label className="text-sm font-medium text-slate-700">
+                LinkedIn URL
+              </label>
               <Input
                 {...register("linkedinUrl")}
-                placeholder="https://linkedin.com/in/..."
+                placeholder="https://linkedin.com/in/username"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Summary</label>
-              <Textarea {...register("summary")} className="h-24" />
+              <label className="text-sm font-medium text-slate-700">
+                Summary
+              </label>
+              <Textarea
+                {...register("summary")}
+                className="h-32 md:h-24 resize-none"
+                placeholder="Briefly describe your professional background..."
+              />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">
+              <label className="text-sm font-medium text-slate-700">
                 Skills (Comma separated)
               </label>
               <Input
                 {...register("skills")}
-                placeholder="NodeJS, PHP, NestJS..."
+                placeholder="NodeJS, PHP, NestJS, Docker..."
               />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between border-b">
-            <CardTitle className="flex items-center gap-2">
-              <Briefcase size={20} className="text-slate-600" /> Experience
+        {/* Work Experience */}
+        <Card className="shadow-sm border-slate-200">
+          <CardHeader className="flex flex-row items-center justify-between border-b py-4">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Briefcase size={20} className="text-emerald-600" /> Experience
             </CardTitle>
             <Button
               type="button"
               variant="outline"
               size="sm"
+              className="text-emerald-600 border-emerald-200 hover:bg-emerald-50"
               onClick={() =>
                 expArray.append({
                   company: "",
@@ -211,88 +242,142 @@ export default function ProfilePage() {
                 })
               }
             >
-              <Plus size={16} className="mr-2" /> Add Job
+              <Plus size={16} className="mr-1" />{" "}
+              <span className="hidden sm:inline">Add Job</span>
+              <span className="sm:hidden">Add</span>
             </Button>
           </CardHeader>
-          <CardContent className="divide-y">
+          <CardContent className="divide-y divide-slate-100">
             {expArray.fields.map((field, index) => (
               <div key={field.id} className="py-6 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <Input
-                    {...register(`workExperience.${index}.company`)}
-                    placeholder="Company"
-                  />
-                  <Input
-                    {...register(`workExperience.${index}.role`)}
-                    placeholder="Role"
-                  />
-                  <Input
-                    {...register(`workExperience.${index}.startDate`)}
-                    placeholder="Start Date (e.g. 2020-01)"
-                  />
-                  <Input
-                    {...register(`workExperience.${index}.endDate`)}
-                    placeholder="End Date (or 'Present')"
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase text-slate-400">
+                      Company
+                    </label>
+                    <Input
+                      {...register(`workExperience.${index}.company`)}
+                      placeholder="e.g. Google"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase text-slate-400">
+                      Role
+                    </label>
+                    <Input
+                      {...register(`workExperience.${index}.role`)}
+                      placeholder="e.g. Backend Engineer"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase text-slate-400">
+                      Start Date
+                    </label>
+                    <Input
+                      {...register(`workExperience.${index}.startDate`)}
+                      placeholder="YYYY-MM"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase text-slate-400">
+                      End Date
+                    </label>
+                    <Input
+                      {...register(`workExperience.${index}.endDate`)}
+                      placeholder="YYYY-MM or Present"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-slate-400">
+                    Key Highlights
+                  </label>
+                  <Textarea
+                    {...register(`workExperience.${index}.highlights`)}
+                    placeholder="Describe your achievements (one per line)..."
+                    className="h-24 md:h-20"
                   />
                 </div>
-                <Textarea
-                  {...register(`workExperience.${index}.highlights`)}
-                  placeholder="Highlights (One per line)"
-                  className="h-20"
-                />
-                <Input
-                  {...register(`workExperience.${index}.technologiesUsed`)}
-                  placeholder="Technologies used (Comma separated)"
-                />
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-slate-400">
+                    Stack
+                  </label>
+                  <Input
+                    {...register(`workExperience.${index}.technologiesUsed`)}
+                    placeholder="e.g. React, AWS, Go"
+                  />
+                </div>
                 <Button
                   type="button"
                   variant="ghost"
-                  className="text-red-500 text-xs"
+                  className="text-red-500 hover:text-red-600 hover:bg-red-50 h-8 px-2"
                   onClick={() => expArray.remove(index)}
                 >
-                  <Trash2 size={14} className="mr-1" /> Remove Job
+                  <Trash2 size={14} className="mr-1" /> Remove Experience
                 </Button>
               </div>
             ))}
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between border-b">
-            <CardTitle className="flex items-center gap-2">
-              <GraduationCap size={20} className="text-slate-600" /> Education
+        {/* Education */}
+        <Card className="shadow-sm border-slate-200">
+          <CardHeader className="flex flex-row items-center justify-between border-b py-4">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <GraduationCap size={20} className="text-emerald-600" /> Education
             </CardTitle>
             <Button
               type="button"
               variant="outline"
               size="sm"
+              className="text-emerald-600 border-emerald-200 hover:bg-emerald-50"
               onClick={() =>
                 eduArray.append({ degree: "", school: "", year: "" })
               }
             >
-              <Plus size={16} className="mr-2" /> Add Education
+              <Plus size={16} className="mr-1" />{" "}
+              <span className="hidden sm:inline">Add Education</span>
+              <span className="sm:hidden">Add</span>
             </Button>
           </CardHeader>
-          <CardContent className="divide-y">
+          <CardContent className="divide-y divide-slate-100 p-0">
             {eduArray.fields.map((field, index) => (
-              <div key={field.id} className="py-4 flex gap-4 items-end">
-                <div className="flex-1 space-y-2">
-                  <label className="text-xs">Degree</label>
-                  <Input {...register(`education.${index}.degree`)} />
+              <div
+                key={field.id}
+                className="p-4 md:p-6 flex flex-col md:flex-row gap-4 items-start md:items-end bg-white relative group"
+              >
+                <div className="flex-1 w-full space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-slate-400">
+                    Degree / Course
+                  </label>
+                  <Input
+                    {...register(`education.${index}.degree`)}
+                    placeholder="B.Sc Computer Science"
+                  />
                 </div>
-                <div className="flex-1 space-y-2">
-                  <label className="text-xs">School</label>
-                  <Input {...register(`education.${index}.school`)} />
+                <div className="flex-1 w-full space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-slate-400">
+                    School
+                  </label>
+                  <Input
+                    {...register(`education.${index}.school`)}
+                    placeholder="University of Lagos"
+                  />
                 </div>
-                <div className="w-24 space-y-2">
-                  <label className="text-xs">Year</label>
-                  <Input {...register(`education.${index}.year`)} />
+                <div className="w-full md:w-32 space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-slate-400">
+                    Year
+                  </label>
+                  <Input
+                    {...register(`education.${index}.year`)}
+                    placeholder="2020"
+                  />
                 </div>
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="text-red-500"
+                  className="absolute top-2 right-2 md:static text-slate-300 hover:text-red-500"
                   onClick={() => eduArray.remove(index)}
                 >
                   <Trash2 size={18} />
@@ -302,42 +387,64 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between border-b">
-            <CardTitle className="flex items-center gap-2">
-              <Award size={20} className="text-slate-600" /> Certifications
+        {/* Certifications */}
+        <Card className="shadow-sm border-slate-200">
+          <CardHeader className="flex flex-row items-center justify-between border-b py-4">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Award size={20} className="text-emerald-600" /> Certifications
             </CardTitle>
             <Button
               type="button"
               variant="outline"
               size="sm"
+              className="text-emerald-600 border-emerald-200 hover:bg-emerald-50"
               onClick={() =>
                 certArray.append({ title: "", issuer: "", date: "" })
               }
             >
-              <Plus size={16} className="mr-2" /> Add Cert
+              <Plus size={16} className="mr-1" />{" "}
+              <span className="hidden sm:inline">Add Certificate</span>
+              <span className="sm:hidden">Add</span>
             </Button>
           </CardHeader>
-          <CardContent className="divide-y">
+          <CardContent className="divide-y divide-slate-100 p-0">
             {certArray.fields.map((field, index) => (
-              <div key={field.id} className="py-4 flex gap-4 items-end">
-                <div className="flex-1 space-y-2">
-                  <label className="text-xs">Title</label>
-                  <Input {...register(`certifications.${index}.title`)} />
+              <div
+                key={field.id}
+                className="p-4 md:p-6 flex flex-col md:flex-row gap-4 items-start md:items-end bg-white relative group"
+              >
+                <div className="flex-1 w-full space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-slate-400">
+                    Certificate Title
+                  </label>
+                  <Input
+                    {...register(`certifications.${index}.title`)}
+                    placeholder="AWS Certified Developer"
+                  />
                 </div>
-                <div className="flex-1 space-y-2">
-                  <label className="text-xs">Issuer</label>
-                  <Input {...register(`certifications.${index}.issuer`)} />
+                <div className="flex-1 w-full space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-slate-400">
+                    Issuer
+                  </label>
+                  <Input
+                    {...register(`certifications.${index}.issuer`)}
+                    placeholder="Amazon Web Services"
+                  />
                 </div>
-                <div className="w-24 space-y-2">
-                  <label className="text-xs">Date</label>
-                  <Input {...register(`certifications.${index}.date`)} />
+                <div className="w-full md:w-32 space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-slate-400">
+                    Date
+                  </label>
+                  <Input
+                    {...register(`certifications.${index}.date`)}
+                    placeholder="2023"
+                  />
                 </div>
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="text-red-500"
+                  className="absolute top-2 right-2 md:static text-slate-300 hover:text-red-500"
                   onClick={() => certArray.remove(index)}
                 >
                   <Trash2 size={18} />

@@ -146,4 +146,15 @@
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+
+  .resume-container {
+    width: 210mm; /* A4 Width */
+    min-height: 297mm; /* A4 Height */
+    padding: 20mm !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+  }
+  .break-inside-avoid {
+    page-break-inside: avoid;
+  }
 }

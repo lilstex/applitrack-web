@@ -24,6 +24,8 @@ export interface CVData {
   refinedExperience: Experience[];
   relevantSkills: string[];
   coverLetter?: string;
+  education?: Education[];
+  certifications?: Certification[];
 }
 
 export interface Application {
