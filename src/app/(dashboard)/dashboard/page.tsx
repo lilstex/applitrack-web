@@ -37,6 +37,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Application } from "@/types";
+import { getStatusStyles } from "@/lib/utils";
 
 export default function DashboardPage() {
   const [applications, setApplications] = useState([]);
@@ -161,9 +162,11 @@ export default function DashboardPage() {
                         <TableCell>
                           <Badge
                             variant="secondary"
-                            className="bg-amber-50 text-amber-700 border-amber-100 gap-1 capitalize whitespace-nowrap"
+                            className={`${getStatusStyles(
+                              app.status
+                            )} capitalize gap-1 font-semibold`}
                           >
-                            <Clock size={12} /> {"Pending"}
+                            <Clock size={12} /> {app.status || "Pending"}
                           </Badge>
                         </TableCell>
 

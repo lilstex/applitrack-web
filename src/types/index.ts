@@ -1,3 +1,12 @@
+export enum ApplicationStatus {
+  GENERATED = "generated",
+  APPLIED = "applied",
+  INTERVIEWING = "interviewing",
+  OFFERED = "offered",
+  HIRED = "hired",
+  REJECTED = "rejected",
+}
+
 export interface Experience {
   company: string;
   role: string;
@@ -35,4 +44,6 @@ export interface Application {
   createdAt: string;
   generatedCvData: CVData;
   generatedCoverLetter: string;
+  status: string;
+  rawJobDescription: string;
 }

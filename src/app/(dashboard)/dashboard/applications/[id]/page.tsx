@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import {
   Edit3,
   Save,
-  FileDown, // Changed from Printer
+  FileDown,
   ArrowLeft,
   Layout,
   FileText,
@@ -24,8 +24,10 @@ import {
 import Link from "next/link";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
-import { Application, CVData } from "@/types";
+import { Application, ApplicationStatus, CVData } from "@/types";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { getStatusStyles } from "@/lib/utils";
 
 // --- TYPE DEFINITIONS ---
 type CVDataArraySections = "refinedExperience" | "education" | "certifications";
@@ -86,16 +88,62 @@ export default function ViewApplicationPage({
     }
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     const token = Cookies.get("token");
     if (!token) {
       toast.error("Authentication required");
       return;
     }
+
     setDownloading(true);
-    const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL}/application/download/${id}?token=${token}&template=${template}`;
-    window.open(downloadUrl, "_blank");
-    setTimeout(() => setDownloading(false), 2000);
+    try {
+      // Fetch the PDF as a blob to prevent page redirection
+      const response = await apiClient.get(
+        `/application/download/${id}?template=${template}`,
+        {
+          responseType: "blob",
+        }
+      );
+
+      // Create a temporary URL for the downloaded blob
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+
+      // Programmatically trigger the browser download
+      const link = document.createElement("a");
+      link.href = url;
+
+      // Construct filename using company name or default
+      const fileName = `CV_${
+        app?.companyName?.replace(/\s/g, "_") || "Application"
+      }.pdf`;
+      link.setAttribute("download", fileName);
+
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Download started");
+    } catch (error) {
+      console.error("PDF download failed", error);
+      toast.error("Failed to download PDF. Please try again.");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const handleStatusUpdate = async (newStatus: string) => {
+    try {
+      await apiClient.patch(`/application/${id}/status`, { status: newStatus });
+
+      setApp((prev) => (prev ? { ...prev, status: newStatus } : null));
+
+      toast.success(`Status updated to ${newStatus}`);
+    } catch {
+      toast.error("Failed to update status");
+    }
   };
 
   if (fetching)
@@ -124,13 +172,25 @@ export default function ViewApplicationPage({
             <h2 className="font-bold text-slate-900 leading-none mb-1 text-sm md:text-base">
               {app.companyName}
             </h2>
-            {/* Status Badge Integration  */}
-            <Badge
-              variant="outline"
-              className="text-[10px] uppercase font-bold bg-amber-50 text-amber-600 border-amber-100 flex items-center gap-1"
+            {/* Dropdown for Status Change */}
+            <select
+              value={app.status}
+              onChange={(e) =>
+                handleStatusUpdate(e.target.value as ApplicationStatus)
+              }
+              className={`text-[10px] uppercase font-bold border rounded px-2 py-0.5 cursor-pointer outline-none transition-colors ${getStatusStyles(
+                app.status
+              )}`}
             >
-              <Clock size={10} /> {"Pending Review"}
-            </Badge>
+              <option value={ApplicationStatus.GENERATED}>Generated</option>
+              <option value={ApplicationStatus.APPLIED}>Applied</option>
+              <option value={ApplicationStatus.INTERVIEWING}>
+                Interviewing
+              </option>
+              <option value={ApplicationStatus.OFFERED}>Offer Received</option>
+              <option value={ApplicationStatus.HIRED}>Hired</option>
+              <option value={ApplicationStatus.REJECTED}>Rejected</option>
+            </select>
           </div>
         </div>
 
@@ -223,10 +283,12 @@ export default function ViewApplicationPage({
                 <Type size={16} className="mr-2" />
                 Letter
               </TabsTrigger>
+              <TabsTrigger value="job-info" className="flex-1 sm:px-8">
+                Job Info
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="resume" className="mt-0">
-              {/* Responsive Container: Overflow-x allows mobile viewing without breaking layout */}
               <div className="overflow-x-auto pb-4 scrollbar-hide">
                 <div
                   className={`bg-white shadow-xl mx-auto min-w-[320px] transition-all duration-300 ${
@@ -265,6 +327,17 @@ export default function ViewApplicationPage({
                 )}
               </div>
             </TabsContent>
+
+            <TabsContent value="job-info">
+              <Card className="p-6 md:p-8">
+                <h3 className="text-xl font-bold text-slate-900 mb-4">
+                  {app.jobTitle} at {app.companyName}
+                </h3>
+                <div className="prose prose-slate max-w-none text-slate-700 whitespace-pre-wrap">
+                  {app.rawJobDescription}
+                </div>
+              </Card>
+            </TabsContent>
           </Tabs>
         </div>
       </div>
@@ -273,7 +346,6 @@ export default function ViewApplicationPage({
 }
 
 // --- TYPE-SAFE EDITOR ---
-
 function ResumeEditor({ app, setApp }: EditorProps) {
   const updateData = <K extends keyof CVData>(field: K, value: CVData[K]) => {
     setApp((prev) => {
@@ -523,7 +595,6 @@ function ResumeEditor({ app, setApp }: EditorProps) {
 }
 
 // --- RESUME TEMPLATE ---
-
 function ResumeTemplate({ data, template, userName }: TemplateProps) {
   const {
     professionalSummary,
