@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react"; // [!code ++]
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import {
@@ -8,8 +8,8 @@ import {
   UserCircle,
   FileText,
   LogOut,
-  Menu, // [!code ++]
-  X, // [!code ++]
+  Menu,
+  X,
 } from "lucide-react";
 import Cookies from "js-cookie";
 
@@ -20,7 +20,7 @@ const menuItems = [
 ];
 
 export function Sidebar() {
-  const [isOpen, setIsOpen] = useState(false); // [!code ++]
+  const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -31,11 +31,11 @@ export function Sidebar() {
     router.refresh();
   };
 
-  const toggleSidebar = () => setIsOpen(!isOpen); // [!code ++]
+  const toggleSidebar = () => setIsOpen(!isOpen);
 
   return (
     <>
-      {/* 1. Mobile Toggle Button - Only visible on small screens */}
+      {/* Mobile Toggle Button */}
       <button
         onClick={toggleSidebar}
         className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-slate-900 text-white rounded-md shadow-lg"
@@ -43,7 +43,7 @@ export function Sidebar() {
         {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
-      {/* 2. Backdrop Overlay - Only visible when menu is open on mobile */}
+      {/* Backdrop Overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity"
@@ -51,7 +51,7 @@ export function Sidebar() {
         />
       )}
 
-      {/* 3. The Sidebar - Fixed on Desktop, Slide-in on Mobile */}
+      {/* The Sidebar */}
       <aside
         className={`
         fixed left-0 top-0 h-screen bg-slate-900 text-white p-6 flex flex-col z-40 transition-transform duration-300 ease-in-out
@@ -59,9 +59,14 @@ export function Sidebar() {
         ${isOpen ? "translate-x-0" : "-translate-x-full"} 
       `}
       >
-        <div className="text-2xl font-bold text-emerald-400 mb-10 px-2 flex justify-between items-center">
+        {/* Logo Section */}
+        <Link
+          href="/"
+          onClick={() => setIsOpen(false)}
+          className="text-2xl font-bold text-emerald-400 mb-10 px-2 flex justify-between items-center hover:text-emerald-300 transition-colors"
+        >
           AppliTrack
-        </div>
+        </Link>
 
         <nav className="flex-1 space-y-2">
           {menuItems.map((item) => {
@@ -71,7 +76,7 @@ export function Sidebar() {
               <Link
                 key={item.name}
                 href={item.href}
-                onClick={() => setIsOpen(false)} // Close on navigation [!code ++]
+                onClick={() => setIsOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors group ${
                   isActive
                     ? "bg-slate-800 text-emerald-400"

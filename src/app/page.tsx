@@ -1,5 +1,9 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import Cookies from "js-cookie";
 import {
   Sparkles,
   ArrowRight,
@@ -12,6 +16,16 @@ import {
 } from "lucide-react";
 
 export default function HomePage() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Check if user has an active session token
+    const token = Cookies.get("token");
+    if (token) {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -24,15 +38,29 @@ export default function HomePage() {
             Apply better
           </span>
         </div>
-        <div className="space-x-4">
-          <Link href="/login">
-            <Button variant="ghost">Login</Button>
-          </Link>
-          <Link href="/signup">
-            <Button className="bg-slate-900 text-white hover:bg-slate-800">
-              Get Started
-            </Button>
-          </Link>
+
+        <div className="flex items-center gap-4">
+          {isLoggedIn ? (
+            /* Show Dashboard link if logged in */
+            <Link href="/dashboard">
+              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm flex items-center gap-2">
+                <LayoutDashboard size={18} />
+                Go to Dashboard
+              </Button>
+            </Link>
+          ) : (
+            /* Show Auth links if not logged in */
+            <>
+              <Link href="/login">
+                <Button variant="ghost">Login</Button>
+              </Link>
+              <Link href="/signup">
+                <Button className="bg-slate-900 text-white hover:bg-slate-800">
+                  Get Started
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
       </nav>
 
@@ -55,7 +83,7 @@ export default function HomePage() {
         </p>
 
         <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
-          <Link href="/signup">
+          <Link href={isLoggedIn ? "/generate" : "/signup"}>
             <Button
               size="lg"
               className="bg-emerald-600 hover:bg-emerald-700 text-lg px-10 py-7 shadow-lg shadow-emerald-200"
