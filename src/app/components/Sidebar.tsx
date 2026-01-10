@@ -12,6 +12,7 @@ import {
   X,
 } from "lucide-react";
 import Cookies from "js-cookie";
+import { Button } from "@/components/ui/button";
 
 const menuItems = [
   { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
@@ -19,7 +20,7 @@ const menuItems = [
   { name: "CV Generator", icon: FileText, href: "/generate" },
 ];
 
-export function Sidebar() {
+export function Sidebar({ user }: { user: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
@@ -67,6 +68,42 @@ export function Sidebar() {
         >
           AppliTrack
         </Link>
+
+        {/* Credit Balance Card at the bottom */}
+        {/* Live Credit Display */}
+        {/* <div className="mt-auto p-4 mx-4 mb-6 bg-slate-800 rounded-xl border border-slate-700">
+          <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">
+            Available Credits
+          </p>
+          <div className="flex items-center justify-between mt-1">
+            <span className="text-xl font-bold text-emerald-400">
+              {user?.credits ?? 0}
+            </span>
+            <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+          </div>
+        </div> */}
+        {/* Credit Display Section */}
+        <div className="mt-auto px-4 mb-6">
+          <div className="bg-slate-800/50 border border-slate-700/50 p-4 rounded-2xl space-y-3">
+            <div>
+              <p className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">
+                Your Balance
+              </p>
+              <p className="text-2xl font-bold text-emerald-400">
+                {user?.credits ?? 0} Credits
+              </p>
+            </div>
+
+            <Link href="/dashboard/billing">
+              <Button
+                variant="secondary"
+                className="w-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-none font-bold text-xs h-9"
+              >
+                Top Up Now
+              </Button>
+            </Link>
+          </div>
+        </div>
 
         <nav className="flex-1 space-y-2">
           {menuItems.map((item) => {

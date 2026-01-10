@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Cookies from "js-cookie";
+import { apiClient } from "@/lib/api-client";
 import {
   Sparkles,
   ArrowRight,
@@ -13,10 +14,15 @@ import {
   FileText,
   Download,
   Zap,
+  Check,
+  Loader2,
 } from "lucide-react";
+import { CreditPlan } from "@/types";
 
 export default function HomePage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [plans, setPlans] = useState<CreditPlan[]>([]);
+  const [loadingPlans, setLoadingPlans] = useState(true);
 
   useEffect(() => {
     // Check if user has an active session token
@@ -24,6 +30,19 @@ export default function HomePage() {
     if (token) {
       setIsLoggedIn(true);
     }
+
+    // Fetch dynamic plans from backend
+    const fetchPlans = async () => {
+      try {
+        const { data } = await apiClient.get("/payment/plans");
+        setPlans(data);
+      } catch (error) {
+        console.error("Failed to fetch plans:", error);
+      } finally {
+        setLoadingPlans(false);
+      }
+    };
+    fetchPlans();
   }, []);
 
   return (
@@ -41,7 +60,6 @@ export default function HomePage() {
 
         <div className="flex items-center gap-4">
           {isLoggedIn ? (
-            /* Show Dashboard link if logged in */
             <Link href="/dashboard">
               <Button className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm flex items-center gap-2">
                 <LayoutDashboard size={18} />
@@ -49,7 +67,6 @@ export default function HomePage() {
               </Button>
             </Link>
           ) : (
-            /* Show Auth links if not logged in */
             <>
               <Link href="/login">
                 <Button variant="ghost">Login</Button>
@@ -83,7 +100,7 @@ export default function HomePage() {
         </p>
 
         <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
-          <Link href={isLoggedIn ? "/generate" : "/signup"}>
+          <Link href={isLoggedIn ? "/dashboard" : "/signup"}>
             <Button
               size="lg"
               className="bg-emerald-600 hover:bg-emerald-700 text-lg px-10 py-7 shadow-lg shadow-emerald-200"
@@ -118,7 +135,6 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Feature 1 */}
             <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
               <div className="bg-emerald-100 w-12 h-12 rounded-lg flex items-center justify-center mb-6 text-emerald-700">
                 <FileText size={24} />
@@ -132,7 +148,6 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Feature 2 */}
             <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
               <div className="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center mb-6 text-blue-700">
                 <LayoutDashboard size={24} />
@@ -146,7 +161,6 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Feature 3 */}
             <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
               <div className="bg-orange-100 w-12 h-12 rounded-lg flex items-center justify-center mb-6 text-orange-700">
                 <Target size={24} />
@@ -160,7 +174,6 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Feature 4 */}
             <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
               <div className="bg-purple-100 w-12 h-12 rounded-lg flex items-center justify-center mb-6 text-purple-700">
                 <Zap size={24} />
@@ -174,7 +187,6 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Feature 5 */}
             <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
               <div className="bg-slate-100 w-12 h-12 rounded-lg flex items-center justify-center mb-6 text-slate-700">
                 <Download size={24} />
@@ -188,7 +200,6 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Final "CTA" Card */}
             <div className="bg-slate-900 p-8 rounded-2xl flex flex-col justify-center items-center text-center">
               <h3 className="text-xl font-bold mb-4 text-white">
                 Ready to start?
@@ -203,8 +214,91 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Pricing Section */}
+      <section className="py-24 px-8 max-w-7xl mx-auto space-y-16">
+        <div className="text-center space-y-4">
+          <div className="inline-flex items-center gap-2 bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">
+            Pricing
+          </div>
+          <h2 className="text-4xl font-bold text-slate-900">
+            Simple, Credit-Based Pricing
+          </h2>
+          <p className="text-slate-600 text-lg max-w-2xl mx-auto">
+            No subscriptions. No hidden fees. Buy credits only when you need
+            them and use them whenever you apply.
+          </p>
+        </div>
+
+        {loadingPlans ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+            {plans.map((plan) => (
+              <div
+                key={plan._id}
+                className={`relative flex flex-col p-8 rounded-3xl border transition-all ${
+                  plan.slug === "pro-pack"
+                    ? "border-emerald-500 shadow-xl shadow-emerald-100 ring-1 ring-emerald-500/20"
+                    : "border-slate-200 bg-white"
+                }`}
+              >
+                {plan.slug === "pro-pack" && (
+                  <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-[10px] font-black uppercase px-4 py-1.5 rounded-full tracking-widest shadow-md">
+                    Recommended
+                  </span>
+                )}
+
+                <div className="mb-8">
+                  <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">
+                    {plan.name}
+                  </h3>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-black text-slate-900">
+                      ${plan.priceUsd.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold">
+                    <Zap size={14} fill="currentColor" /> {plan.credits} Token
+                    Credits
+                  </div>
+                </div>
+
+                <ul className="space-y-4 mb-10 flex-1">
+                  {[
+                    "Tailored CV Generation",
+                    "Professional Cover Letters",
+                    "ATS Keyword Match",
+                  ].map((feat) => (
+                    <li
+                      key={feat}
+                      className="flex items-center gap-3 text-sm text-slate-600 font-medium"
+                    >
+                      <Check size={18} className="text-emerald-500" /> {feat}
+                    </li>
+                  ))}
+                </ul>
+
+                <Link href="/signup">
+                  <Button
+                    className={`w-full py-7 rounded-2xl font-bold text-base ${
+                      plan.slug === "pro-pack"
+                        ? "bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-200"
+                        : "bg-slate-900 hover:bg-slate-800"
+                    }`}
+                  >
+                    Get Started
+                  </Button>
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
       {/* Footer */}
-      <footer className="py-12 px-8 text-center text-slate-400 text-sm">
+      <footer className="py-12 px-8 text-center text-slate-400 text-sm border-t border-slate-100">
         © {new Date().getFullYear()} AppliTrack. Built for career growth.
       </footer>
     </div>

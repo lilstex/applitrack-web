@@ -7,6 +7,11 @@ export enum ApplicationStatus {
   REJECTED = "rejected",
 }
 
+export enum PaymentGateway {
+  STRIPE = "stripe",
+  PAYSTACK = "paystack",
+}
+
 export interface Experience {
   company: string;
   role: string;
@@ -46,4 +51,15 @@ export interface Application {
   generatedCoverLetter: string;
   status: string;
   rawJobDescription: string;
+}
+
+export interface CreditPlan {
+  _id: string;
+  slug: string;
+  name: string;
+  credits: number;
+  priceNgn: number;
+  priceUsd: number;
+  stripePriceId: string;
+  isActive: boolean;
 }

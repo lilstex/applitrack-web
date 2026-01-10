@@ -90,10 +90,6 @@ export default function DashboardPage() {
             Manage and edit your generated documents.
           </p>
         </div>
-        <div className="w-full sm:w-auto bg-emerald-50 border border-emerald-100 text-emerald-700 px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-sm text-sm md:text-base">
-          <Briefcase size={18} className="text-emerald-500" />
-          <span>{total} Total Applications</span>
-        </div>
       </div>
 
       {/* Table Card */}
